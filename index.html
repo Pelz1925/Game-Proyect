@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Castle Idle — Fusion Hero Kaelen Update</title>
+<style>
+  :root{
+    --bg:#0b0d14;
+    --panel:#141824;
+    --panel2:#1d2334;
+    --line:#2a334a;
+    --text:#eef2ff;
+    --muted:#8290ad;
+    --gold:#ffcd54;
+    --green:#4ade80;
+    --red:#f87171;
+    --blue:#60a5fa;
+    --purple:#c084fc;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:radial-gradient(circle at 50% 0%, #1e283d 0%, var(--bg) 60%);
+    color:var(--text);
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    min-height:100vh;
+  }
+  button, select, input{font:inherit}
+  .wrap{max-width:1380px;margin:auto;padding:18px}
+  header{
+    display:flex;justify-content:space-between;align-items:center;gap:18px;
+    margin-bottom:15px;flex-wrap:wrap;
+  }
+  .brand{font-weight:900;font-size:26px;letter-spacing:.5px;text-shadow:0 0 10px rgba(255,205,84,0.2)}
+  .brand span{color:var(--gold)}
+  .resources{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .pill{
+    background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:9px 13px;min-width:115px;box-shadow:0 4px 12px rgba(0,0,0,0.3)
+  }
+  .pill b{display:block;font-size:17px;color:var(--gold)}
+  .pill small{color:var(--muted)}
+  .grid{
+    display:grid;
+    grid-template-columns:1.3fr 0.95fr;
+    gap:18px
+  }
+  .panel{
+    background:rgba(20,24,36,.95);
+    border:1px solid var(--line);border-radius:16px;
+    box-shadow:0 12px 35px rgba(0,0,0,.4)
+  }
+  .battle{padding:16px;position:relative;overflow:hidden}
+  .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .wave{font-weight:800;font-size:18px}
+  .status{color:var(--muted);font-size:13px}
+  .scene{
+    min-height:420px;border:1px solid #2d374e;border-radius:14px;
+    position:relative;overflow:hidden;
+    background:linear-gradient(#09101d 0%, #111b2d 60%, #152219 60%, #0d1711 100%);
+  }
+  .moon{
+    position:absolute;width:90px;height:90px;border-radius:50%;
+    right:10%;top:8%;background:radial-gradient(circle, #fff 40%, #c7d2fe 100%);
+    box-shadow:0 0 50px rgba(199,210,254,0.35);
+  }
+  .mountain{
+    position:absolute;bottom:40%;width:0;height:0;
+    border-left:120px solid transparent;border-right:120px solid transparent;
+    border-bottom:140px solid #0d1522;opacity:.9
+  }
+  .m1{left:5%}.m2{left:32%;transform:scale(1.25)}.m3{right:-2%;transform:scale(.85)}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:40%;background:linear-gradient(#1a2e22,#0d1812);border-top:3px solid #233e2e}
+  
+  .speed-badge{
+    position:absolute;top:12px;right:12px;z-index:10;
+    background:rgba(15, 23, 42, 0.85);border:1px solid var(--line);
+    padding:6px 12px;border-radius:20px;font-size:12px;font-weight:800;
+    color:var(--text);display:flex;align-items:center;gap:6px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.5);transition:all .3s ease;
+  }
+  .speed-badge.boosted{
+    background:linear-gradient(135deg, #78350f, #b45309);
+    border-color:var(--gold);color:#fff;
+    box-shadow:0 0 15px rgba(255,205,84,0.6);
+    animation:pulseSpeed 1s infinite alternate;
+  }
+  @keyframes pulseSpeed{from{transform:scale(1)}to{transform:scale(1.08)}}
+
+  .castle-container{
+    position:absolute;bottom:8%;left:4%;width:44%;height:52%;
+  }
+  .castle-wall{
+    position:absolute;bottom:0;left:15%;width:70%;height:65%;
+    background:#3a4556;border:4px solid #1e2638;border-bottom:none;
+    box-shadow:inset 0 10px 0 #4c5a6f;
+  }
+  .castle-tower-left, .castle-tower-right{
+    position:absolute;bottom:0;width:22%;height:90%;
+    background:#475569;border:4px solid #1e2638;
+  }
+  .castle-tower-left{left:0}.castle-tower-right{right:0}
+  .castle-keep{
+    position:absolute;bottom:0;left:33%;width:34%;height:100%;
+    background:#52617a;border:4px solid #1e2638;
+  }
+  .battlement{
+    position:absolute;top:-12px;left:-4px;right:-4px;height:12px;
+    background:repeating-linear-gradient(90deg, #1e2638, #1e2638 12px, transparent 12px, transparent 24px);
+  }
+  .roof-cone{
+    position:absolute;top:-30px;left:-6px;right:-6px;height:30px;
+    background:#991b1b;clip-path:polygon(50% 0%, 100% 100%, 0% 100%);
+    border-bottom:3px solid #1e2638;
+  }
+  .gate{
+    position:absolute;bottom:0;left:35%;width:30%;height:35%;
+    background:#18181b;border:3px solid #3f3f46;border-radius:12px 12px 0 0;
+  }
+  .banner{
+    position:absolute;top:20%;left:42%;width:16%;height:30%;
+    background:#b91c1c;border-radius:0 0 8px 8px;border:2px solid #f59e0b;
+  }
+
+  .castle-bar{
+    position:absolute;left:4%;width:44%;bottom:63%;height:16px;background:#0f172a;border-radius:99px;overflow:hidden;
+    border:2px solid #1e293b;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(0,0,0,0.5)
+  }
+  .castle-bar > div.fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg, #22c55e, #4ade80);width:100%;transition:width .2s}
+  .castle-bar-text{
+    position:relative;z-index:2;font-size:10px;font-weight:900;color:#fff;
+    text-shadow:0 0 4px #000;pointer-events:none
+  }
+  .castle-label{position:absolute;left:4%;bottom:68%;font-size:12px;color:#cbd5e1;font-weight:800;letter-spacing:1px}
+
+  .enemy{
+    position:absolute;bottom:12%;width:60px;height:90px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:46px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.5));
+    transition:left .1s linear, opacity .2s;
+    user-select:none;
+  }
+  .enemy.boss{font-size:68px;filter:drop-shadow(0 0 16px rgba(248,113,113,.8))}
+  .enemy.attacking{animation:attackPulse 0.5s infinite alternate}
+  @keyframes attackPulse{from{transform:scale(1)}to{transform:scale(1.18) translateX(-8px)}}
+  .float{
+    position:absolute;font-weight:900;pointer-events:none;
+    animation:float .8s ease-out forwards;text-shadow:0 2px 4px #000
+  }
+  @keyframes float{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-48px)}}
+
+  .hero-skills-panel{
+    margin-top:12px;padding:10px;background:#0f172a;border:1px solid #1e293b;border-radius:12px
+  }
+  .section-title{font-size:11px;font-weight:800;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}
+  .hero-skills-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6px}
+
+  .buy-multiplier-container{
+    display:flex;gap:4px;margin-bottom:10px;background:#0f172a;padding:4px;border-radius:10px;border:1px solid #1e293b;
+  }
+  .btn-buy-mult{
+    flex:1;background:#1e293b;border:1px solid #334155;color:var(--muted);
+    border-radius:6px;padding:4px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;text-align:center
+  }
+  .btn-buy-mult:hover{background:#334155;color:#fff}
+  .btn-buy-mult.active{
+    background:linear-gradient(135deg, #d97706, #f59e0b);border-color:#fbbf24;
+    color:#fff;box-shadow:0 0 8px rgba(245,158,11,0.4)
+  }
+
+  .mode-container{
+    margin-top:10px;padding:10px;background:#0f172a;border:1px solid #1e293b;border-radius:12px
+  }
+  .mode-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:6px}
+  .btn-mode{
+    background:#1e293b;border:1px solid #334155;color:var(--text);padding:8px 4px;
+    border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;text-align:center
+  }
+  .btn-mode:hover{background:#334155;border-color:#475569}
+  .btn-mode.active{
+    background:linear-gradient(135deg, #059669, #10b981);border-color:#34d399;
+    box-shadow:0 0 10px rgba(16,185,129,0.4);color:#fff
+  }
+
+  .infinite-stats-wrapper{
+    margin-top:16px;display:flex;flex-direction:column;gap:14px;align-items:center;width:100%;
+  }
+  .infinite-stats-panel{
+    width:100%;padding:10px;background:#1e1b2e;border:1px solid #6b21a8;border-radius:12px;
+    display:flex;justify-content:space-around;text-align:center;box-shadow:0 0 12px rgba(168,85,247,0.2);
+  }
+  .infinite-stat-box{display:flex;flex-direction:column}
+  .infinite-stat-box small{font-size:10px;color:var(--purple);font-weight:700;text-transform:uppercase}
+  .infinite-stat-box b{font-size:15px;color:#fff}
+
+  .last-run-panel{
+    margin:0 auto;max-width:max-content;padding:8px 16px;background:#12101d;border:1px dashed #a855f7;border-radius:10px;
+    display:flex;justify-content:center;align-items:center;gap:12px;font-size:11px;text-align:center;
+  }
+  .last-run-title{color:var(--gold);font-weight:800;display:flex;align-items:center;gap:4px}
+  .last-run-data{display:flex;gap:12px;color:#cbd5e1;font-weight:600}
+  .last-run-data span b{color:var(--purple)}
+
+  .skip-container{
+    margin-top:10px;padding:10px;background:#0f172a;border:1px solid #1e293b;border-radius:12px
+  }
+  .skip-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:6px}
+  .btn-skip{
+    background:#1e293b;border:1px solid #334155;color:var(--text);padding:8px 4px;
+    border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:all .15s;text-align:center
+  }
+  .btn-skip:hover{background:#334155;border-color:#475569}
+  .btn-skip.active{
+    background:linear-gradient(135deg, #2563eb, #1d4ed8);border-color:#60a5fa;
+    box-shadow:0 0 10px rgba(59,130,246,0.4);color:#fff
+  }
+
+  .xp-shop-container{
+    margin-top:10px;padding:10px;background:#13122b;border:1px solid #4c1d95;border-radius:12px;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
+  }
+  .xp-shop-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:8px}
+  .xp-shop-item{
+    background:#1e1b3a;border:1px solid #5b21b6;border-radius:10px;padding:8px 10px;
+    display:flex;flex-direction:column;justify-content:space-between;gap:6px
+  }
+  .xp-shop-item-info{display:flex;flex-direction:column}
+  .xp-shop-item-title{font-size:12px;font-weight:800;color:#c084fc}
+  .xp-shop-item-desc{font-size:10px;color:#94a3b8;margin-top:2px}
+
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .btn{
+    border:1px solid var(--line);background:var(--panel2);color:var(--text);
+    padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700;
+    position:relative;overflow:hidden;transition:all .15s;font-size:12px
+  }
+  .btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+  .btn.primary{background:linear-gradient(135deg, #1e3a8a, #2563eb);border-color:#3b82f6}
+  .btn.gold{background:linear-gradient(135deg, #78350f, #b45309);border-color:#f59e0b;color:#fef3c7}
+  .btn.purple{background:linear-gradient(135deg, #581c87, #7e22ce);border-color:#a855f7;color:#f3e8ff}
+  .btn.auto-wave{background:linear-gradient(135deg, #065f46, #059669);border-color:#10b981;color:#ecfdf5}
+  .btn.auto-wave.active-auto{
+    background:linear-gradient(135deg, #b91c1c, #dc2626);border-color:#f87171;
+    animation:pulseAuto 1.5s infinite;
+  }
+  @keyframes pulseAuto{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.7)} 70%{box-shadow:0 0 0 10px rgba(239,68,68,0)} 100%{box-shadow:0 0 0 0 rgba(239,68,68,0)}}
+  
+  .btn:disabled{opacity:.4;cursor:not-allowed;filter:none;transform:none}
+  .btn .cd-bar{
+    position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.25);
+    pointer-events:none;width:0%
+  }
+  aside{display:flex;flex-direction:column;gap:15px}
+  .section{padding:14px}
+  .section h3{margin:0 0 11px;font-size:15px;display:flex;align-items:center;gap:6px}
+
+  .slots-grid{
+    display:grid;grid-template-columns:repeat(3, 1fr);gap:8px
+  }
+  .slot{
+    min-height:75px;border:2px dashed #334155;border-radius:12px;
+    background:#0f172a;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;transition:.15s;position:relative;text-align:center;padding:6px
+  }
+  .slot:hover{border-color:#64748b;background:#1e293b}
+  .slot.filled{border-style:solid;border-color:#3b82f6;background:linear-gradient(145deg, #1e293b, #0f172a)}
+  .slot .slot-icon{font-size:24px;line-height:1}
+  .slot .slot-name{font-size:10px;margin-top:3px;font-weight:800;color:#e2e8f0}
+  .slot .slot-lv{font-size:9px;color:var(--muted)}
+  .slot .remove{
+    position:absolute;right:4px;top:2px;border:0;background:transparent;color:#94a3b8;
+    cursor:pointer;font-size:11px;padding:2px
+  }
+  .slot .remove:hover{color:var(--red)}
+
+  .hero-list{max-height:480px;overflow-y:auto;padding-right:4px}
+  .hero{
+    display:grid;grid-template-columns:46px 1fr auto;gap:10px;align-items:center;
+    padding:8px;border:1px solid #273549;border-radius:12px;background:#111827;margin-bottom:8px
+  }
+  .hero:last-child{margin-bottom:0}
+  .hero-avatar{
+    width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+    font-size:24px;background:linear-gradient(135deg, #1f2937, #111827);
+    border:2px solid #374151;box-shadow:0 4px 8px rgba(0,0,0,0.4);position:relative
+  }
+  
+  .hero-name{font-size:12px;font-weight:800}.hero-meta{font-size:10px;color:var(--muted)}
+  .hero-skill-info{font-size:10px;color:#a855f7;font-weight:600;margin-top:1px}
+  .hero-select{
+    margin-top:3px;background:#1e293b;border:1px solid #475569;color:var(--text);
+    border-radius:6px;padding:2px 4px;font-size:10px;outline:none;width:100%
+  }
+  .hero-actions{display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+  .hero button{padding:5px 8px;font-size:10px}
+
+  .upg{
+    display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+    padding:8px 10px;border:1px solid #273549;border-radius:11px;background:#111827;margin-bottom:6px
+  }
+  .upg-title{font-weight:750;font-size:12px}
+  .upg-meta{color:var(--muted);font-size:10px;margin-top:1px}
+
+  .progress{
+    height:22px;background:#0f172a;border-radius:10px;overflow:hidden;border:1px solid #1e293b;position:relative;display:flex;align-items:center;justify-content:center;
+  }
+  .progress div{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg, #8b5cf6, #c084fc);transition:width .25s;z-index:1}
+  .progress-text{position:relative;z-index:2;font-size:11px;font-weight:900;color:#fff;text-shadow:0 0 4px #000;pointer-events:none}
+  .muted{color:var(--muted)}
+  .footer-note{margin-top:12px;color:#64748b;font-size:11px;text-align:center}
+
+  @media(max-width:850px){
+    .grid{grid-template-columns:1fr}
+    .scene{min-height:380px}
+    .hero-skills-grid{grid-template-columns:repeat(2, 1fr);}
+    .mode-grid{grid-template-columns:repeat(1, 1fr);}
+    .xp-shop-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">🏰 Castle <span>Idle</span></div>
+    <div class="resources">
+      <div class="pill"><small>Oro</small><b id="gold">0</b></div>
+      <div class="pill"><small>Oro / seg</small><b id="gps">0</b></div>
+      <div class="pill"><small>Vida Máxima</small><b id="maxHpVal">100</b></div>
+      <div class="pill"><small>Oleada</small><b id="wave">1</b></div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <main class="panel battle">
+      <div class="topline">
+        <div>
+          <div class="wave" id="waveTitle">Defiende el castillo</div>
+          <div class="status" id="enemyStatus">Preparando oleada...</div>
+          <div class="status" id="dpsStatus" style="margin-top:3px">DPS total: 0</div>
+        </div>
+      </div>
+
+      <div class="scene" id="scene">
+        <div class="speed-badge" id="speedBadge">
+          <span>⚡ Velocidad:</span> <span id="speedVal">x1.0</span>
+        </div>
+
+        <div class="moon"></div>
+        <div class="mountain m1"></div><div class="mountain m2"></div><div class="mountain m3"></div>
+        <div class="ground"></div>
+        
+        <div class="castle-container">
+          <div class="castle-wall"><div class="battlement"></div></div>
+          <div class="castle-tower-left"><div class="roof-cone"></div></div>
+          <div class="castle-tower-right"><div class="roof-cone"></div></div>
+          <div class="castle-keep"><div class="roof-cone"></div><div class="banner"></div><div class="gate"></div></div>
+        </div>
+
+        <div class="castle-label">CASTILLO</div>
+        <div class="castle-bar">
+          <div class="fill" id="castleHpBar"></div>
+          <span class="castle-bar-text" id="castleHpText">100 / 100 HP</span>
+        </div>
+        <div id="enemiesContainer"></div>
+      </div>
+
+      <div class="hero-skills-panel">
+        <div class="section-title">⚡ Habilidades Activas de Héroes Equipados</div>
+        <div class="hero-skills-grid" id="activeSkillsContainer"></div>
+      </div>
+
+      <div class="controls">
+        <button class="btn primary" id="skillBtn">
+          <div class="cd-bar" id="skillCdBar"></div>
+          <span id="skillBtnText">🔥 Golpe de artillería</span>
+        </button>
+        <button class="btn auto-wave" id="autoWaveBtn" onclick="toggleAutoWave()">
+          🤖 Auto Skills: OFF
+        </button>
+        <button class="btn" id="saveBtn">💾 Guardar Juego</button>
+        <button class="btn" id="resetBtn">↻ Reiniciar</button>
+      </div>
+
+      <div class="mode-container">
+        <div class="section-title">🎮 Modo de Juego Activo</div>
+        <div class="mode-grid">
+          <button class="btn-mode active" id="mode-normal" onclick="setGameMode('normal')">⚔️ Normal</button>
+          <button class="btn-mode" id="mode-goldrush" onclick="setGameMode('goldrush')">🪙 Codicia</button>
+          <button class="btn-mode" id="mode-infinite" onclick="setGameMode('infinite')">♾️ Oleada Infinita</button>
+        </div>
+      </div>
+
+      <div class="infinite-stats-wrapper" id="infiniteStatsContainer" style="display:none;">
+        <div class="infinite-stats-panel">
+          <div class="infinite-stat-box">
+            <small>💥 Daño Total Infligido</small>
+            <b id="infTotalDamage">0</b>
+          </div>
+          <div class="infinite-stat-box">
+            <small>☠️ Enemigos Eliminados</small>
+            <b id="infKills">0</b>
+          </div>
+          <div class="infinite-stat-box">
+            <small>📈 Buff de Enemigos</small>
+            <b id="infBuffPct">+0%</b>
+          </div>
+        </div>
+
+        <div class="last-run-panel">
+          <div class="last-run-title">🏆 Récord Run Anterior:</div>
+          <div class="last-run-data">
+            <span>Bajas: <b id="lastRunKills">0</b></span>
+            <span>Daño: <b id="lastRunDmg">0</b></span>
+            <span>Buff Max: <b id="lastRunBuff">+0%</b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="skip-container" id="skipContainer">
+        <div class="section-title">Modo Wave Skip</div>
+        <div class="skip-grid">
+          <button class="btn-skip active" id="skip-0" onclick="setSkipMode(0)">No Skip</button>
+          <button class="btn-skip" id="skip-1" onclick="setSkipMode(1)">+1 Skip</button>
+          <button class="btn-skip" id="skip-2" onclick="setSkipMode(2)">+2 Skip</button>
+          <button class="btn-skip" id="skip-3" onclick="setSkipMode(3)">+3 Skip</button>
+          <button class="btn-skip" id="skip-4" onclick="setSkipMode(4)">+4 Skip</button>
+          <button class="btn-skip" id="skip-5" onclick="setSkipMode(5)">+5 Skip</button>
+        </div>
+      </div>
+
+      <div class="xp-shop-container">
+        <div class="section-title" style="color:#c084fc;">✨ Mercado de Experiencia (XP Shop)</div>
+        <div class="xp-shop-grid" id="xpShopGrid"></div>
+      </div>
+
+      <div class="footer-note">MVP Offline · Fusion Kael & Kaelen</div>
+    </main>
+
+    <aside>
+      <div class="panel section" style="padding-bottom:10px;">
+        <div class="section-title">🛒 Multiplicador de Compra de Niveles</div>
+        <div class="buy-multiplier-container">
+          <button class="btn-buy-mult active" id="buy-1" onclick="setBuyMultiplier(1)">x1</button>
+          <button class="btn-buy-mult" id="buy-10" onclick="setBuyMultiplier(10)">x10</button>
+          <button class="btn-buy-mult" id="buy-100" onclick="setBuyMultiplier(100)">x100</button>
+          <button class="btn-buy-mult" id="buy-1000" onclick="setBuyMultiplier(1000)">x1000</button>
+        </div>
+      </div>
+
+      <div class="panel section">
+        <h3>⚙️ Mejoras del Reino</h3>
+        <div id="upgrades"></div>
+      </div>
+
+      <div class="panel section">
+        <h3>🧩 Slots de Héroes (9 Slots)</h3>
+        <div class="slots-grid" id="heroSlots"></div>
+      </div>
+
+      <div class="panel section">
+        <h3>🧙 Ejército y Héroes (10)</h3>
+        <div class="hero-list" id="heroes"></div>
+      </div>
+
+      <div class="panel section">
+        <h3>✨ Contenedor de Experiencia</h3>
+        <div class="muted" style="font-size:11px;margin-bottom:6px">XP acumulada para gastar en la Tienda de XP</div>
+        <div class="progress">
+          <div id="xpBar"></div>
+          <span class="progress-text" id="xpText">0 / 10,000 XP</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const SAVE_KEY = "castle_idle_mvp_v10";
+const BASE_SKILL_CD = 10;
+const TOTAL_SLOTS = 9;
+const MAX_XP_CAP = 1000000000;
+
+let buyMultiplier = 1;
+let gameSpeedMultiplier = 1.0;
+let speedBoostTimer = 0;
+let debuffEnemiesTimer = 0;
+
+const gameModeConfigs = {
+  normal: { label: "Normal", speedMult: 1.0, enemyHpMult: 1.0, enemyDmgMult: 1.0, goldMult: 1.0 },
+  goldrush: { label: "Codicia (+100% Oro, -30% Castle HP)", speedMult: 1.0, enemyHpMult: 1.0, enemyDmgMult: 1.0, goldMult: 2.0 },
+  infinite: { label: "Oleada Infinita", speedMult: 1.0, enemyHpMult: 1.0, enemyDmgMult: 1.0, goldMult: 1.0 }
+};
+
+const skipConfigs = {
+  0: { addEnemies: 0, bosses: 0, statBuff: 0, label: "No Skip" },
+  1: { addEnemies: 1, bosses: 1, statBuff: 0, label: "+1 Skip" },
+  2: { addEnemies: 1, bosses: 1, statBuff: 0.30, label: "+2 Skip" },
+  3: { addEnemies: 2, bosses: 2, statBuff: 0.45, label: "+3 Skip" },
+  4: { addEnemies: 3, bosses: 3, statBuff: 0.80, label: "+4 Skip" },
+  5: { addEnemies: 4, bosses: 4, statBuff: 1.15, label: "+5 Skip" }
+};
+
+const xpShopDefs = {
+  xpGain: { name: "🧪 Elixir de Sabiduría", desc: "Aumenta la XP obtenida por enemigo", baseCost: 200, mult: 1.5, effect: lv => `+${lv * 15}% XP Ganada` },
+  goldGain: { name: "🪙 Toque del Rey", desc: "Aumenta las ganancias de oro globales", baseCost: 350, mult: 1.6, effect: lv => `+${lv * 10}% Oro Total` },
+  allDamage: { name: "💥 Poder Arcano", desc: "Aumenta todo el daño infligido", baseCost: 500, mult: 1.7, effect: lv => `+${lv * 8}% Daño Global` },
+  maxHpBonus: { name: "🛡️ Baluarte Ancestral", desc: "Aumenta la vida máxima del castillo", baseCost: 400, mult: 1.55, effect: lv => `+${lv * 12}% HP Máx` }
+};
+
+const heroDefs = {
+  archer: { name: "Lia, Arquera", icon: "🏹", desc: "Ataque rápido a distancia", base: 5, cost: 0, mult: 1.25, skillName: "Lluvia de Flechas", cd: 8, skillAction: (hLevel) => damageAllEnemies(15 + hLevel * 8) },
+  knight: { name: "Brom, Caballero", icon: "🛡️", desc: "Fuerza defensiva pesada", base: 12, cost: 200, mult: 1.30, skillName: "Escudo Inquebrantable", cd: 14, skillAction: (hLevel) => s.castleHp = Math.min(s.castleMaxHp, s.castleHp + 30 + hLevel * 15) },
+  mage: { name: "Nyx, Maga", icon: "🔮", desc: "Magia de área devastadora", base: 18, cost: 450, mult: 1.35, skillName: "Estallido Arcano", cd: 12, skillAction: (hLevel) => damageEnemy(40 + hLevel * 20, "magia") },
+  paladin: { name: "Gideon, Paladín", icon: "⚔️", desc: "Luz sagrada y daño elevado", base: 25, cost: 900, mult: 1.36, skillName: "Juicio Divino", cd: 15, skillAction: (hLevel) => { const dmg = 60 + hLevel * 28; damageEnemy(dmg, "sagrado"); s.castleHp = Math.min(s.castleMaxHp, s.castleHp + Math.floor(dmg * 0.3)); } },
+  pyromancer: { name: "Ignis, Piromante", icon: "🔥", desc: "Especialista en ráfagas de fuego", base: 38, cost: 1800, mult: 1.38, skillName: "Inferno Cometa", cd: 10, skillAction: (hLevel) => damageAllEnemies(85 + hLevel * 35) },
+  frostwarden: { name: "Ymir, Guardián Escarcha", icon: "❄️", desc: "Control de hielo y congelación", base: 80, cost: 7000, mult: 1.42, skillName: "Prisión de Hielo", cd: 13, skillAction: () => enemyQueue.forEach((e, idx) => { e.x = Math.min(95 + (idx * 5), e.x + 12); }) },
+  assassin: { name: "Vex, Asesina", icon: "🗡️", desc: "Ataques sombríos de gran DPS", base: 120, cost: 14000, mult: 1.48, skillName: "Golpe Sombrío", cd: 7, skillAction: (hLevel) => { const t = getFrontEnemy(); if(t) damageEnemy((t.maxHp * 0.35) + (hLevel * 50), "crítico"); } },
+  chronomancer: { name: "Chronos, Sabio del Tiempo", icon: "⏳", desc: "Soporte: Aceleración de tiempo y oro", base: 0, cost: 30000, mult: 1.48, skillName: "Paradoja Temporal", cd: 20, skillAction: (hLevel) => { s.gold += Math.floor(incomePerSec() * 15 + hLevel * 100); skillCooldown = 0; speedBoostTimer = 5.0; floatText("⏳ ¡TIEMPO ACELERADO x2.5!", 50, "#ffcd54"); } },
+  astramancer: { name: "Astra, Erudita Arcana", icon: "🔮", desc: "Soporte: Reducción masiva de CDs", base: 0, cost: 45000, mult: 1.50, skillName: "Flujo Arcano", cd: 22, skillAction: () => { if(skillCooldown > 0) skillCooldown = Math.max(0, skillCooldown - (getSkillMaxCd() * 0.5)); Object.keys(s.heroes).forEach(k => { if(s.heroes[k].cd > 0) s.heroes[k].cd = Math.max(0, s.heroes[k].cd - (getHeroMaxSkillCd(k) * 0.5)); }); floatText("🔮 ¡CDs reducidos un 50%!", 50, "#c084fc"); } },
+  dreadlord: { name: "Kaelen, Señor de la Ruina", icon: "🔱", desc: "Soporte: Roba vida, debilita y aplica maldición", base: 0, cost: 65000, mult: 1.52, skillName: "Maldición y Drenaje", cd: 22, skillAction: (hLevel) => { const dmg = (60 + hLevel * 30); enemyQueue.forEach(e => { let finalDmg = debuffEnemiesTimer > 0 ? dmg * 2 : dmg; e.hp -= finalDmg; if(s.gameMode === "infinite") s.infiniteStats.totalDamage += finalDmg; s.castleHp = Math.min(s.castleMaxHp, s.castleHp + (finalDmg * 0.15)); }); debuffEnemiesTimer = 5.0; floatText("🔱 ¡MALDICIÓN ACTIVADA!", 50, "#f87171"); } }
+};
+
+const defaultState = {
+  gold: 120, wave: 1, gameMode: "normal", skipLevel: 0, autoWave: false, castleHp: 100, castleMaxHp: 100, playerLevel: 1, xp: 0, totalKills: 0, bossesKilled: 0,
+  xpUpgrades: { xpGain: 0, goldGain: 0, allDamage: 0, maxHpBonus: 0 },
+  infiniteStats: { totalDamage: 0, kills: 0 },
+  lastInfiniteRun: { kills: 0, totalDamage: 0, buffPct: 0 },
+  upgrades: { town: 0, tower: 0, castle: 0, cd: 0, heroCd: 0, artDmg: 0 },
+  heroes: {
+    archer: { owned: true, level: 1, cd: 0 }, knight: { owned: false, level: 0, cd: 0 }, mage: { owned: false, level: 0, cd: 0 }, paladin: { owned: false, level: 0, cd: 0 },
+    pyromancer: { owned: false, level: 0, cd: 0 }, frostwarden: { owned: false, level: 0, cd: 0 }, assassin: { owned: false, level: 0, cd: 0 }, chronomancer: { owned: false, level: 0, cd: 0 },
+    astramancer: { owned: false, level: 0, cd: 0 }, dreadlord: { owned: false, level: 0, cd: 0 }
+  },
+  heroSlots: ["archer", null, null, null, null, null, null, null, null],
+  lastSave: Date.now()
+};
+
+let s = structuredClone(defaultState);
+let skillCooldown = 0;
+let enemyQueue = [];
+let towerAttackTimer = 0;
+let gameLoopInterval = null;
+
+const upgradeDefs = {
+  town: {name:"🏘️ Ingresos del reino", base:55, mult:1.32, max:Infinity, effect:l=>`+${(l+1)*2} oro/seg`},
+  tower: {name:"🏹 Torre de ataque", base:80, mult:1.35, max:Infinity, effect:l=>`+${3*(l+1)} daño de torre`},
+  castle: {name:"🏰 Castillo", base:70, mult:1.35, max:Infinity, effect:l=>`+${15*(l+1)} vida máxima`},
+  cd: {name:"⏱️ Cooldown Artillería", base:100, mult:1.15, max:100, effect:l=> l >= 100 ? "-50% CD (MÁX)" : `-${((l+1)*0.5).toFixed(1)}% CD`},
+  heroCd: {name:"⏳ Cooldown Héroes", base:120, mult:1.18, max:100, effect:l=> l >= 100 ? "-50% CD Héroes (MÁX)" : `-${((l+1)*0.5).toFixed(1)}% CD Héroes`},
+  artDmg: {name:"🔥 Daño de artillería", base:180, mult:1.45, max:Infinity, effect:l=>`+${(l+1)*10}% daño artillería`}
+};
+
+// --- GUARDADO Y CARGA LOCAL ---
+
+function saveLocal() {
+  try {
+    s.lastSave = Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+    floatText("💾 ¡Juego Guardado!", 50, "#4ade80");
+  } catch (e) {
+    console.error("Error al guardar localmente:", e);
+  }
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      applyLoadedState(parsed);
+    }
+  } catch (e) {
+    console.error("Error al cargar localmente:", e);
+  }
+}
+
+// --- LÓGICA CORE DE JUEGO ---
+
+function setBuyMultiplier(mult){
+  buyMultiplier = mult;
+  [1, 10, 100, 1000].forEach(m => {
+    const btn = document.getElementById(`buy-${m}`);
+    if(btn) btn.classList.toggle("active", m === mult);
+  });
+  renderUpgradesDOM();
+  renderHeroesDOM();
+  renderUI();
+}
+
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return "0";
+  let num = Math.floor(n);
+  if (num < 1000) return num.toString();
+  const units = ["k", "M", "B", "T", "Qa", "Qi"];
+  let unitIndex = -1;
+  let formatted = num;
+  while (formatted >= 1000 && unitIndex < units.length - 1) {
+    formatted /= 1000;
+    unitIndex++;
+  }
+  return formatted.toFixed(formatted % 1 === 0 ? 0 : 2) + units[unitIndex];
+}
+
+function isBossWave(w){ return s.gameMode === "infinite" ? false : w % 10 === 0; }
+function toggleAutoWave(){ s.autoWave = !s.autoWave; renderUI(); }
+
+function processAutoSkills(){
+  if(!s.autoWave || enemyQueue.length === 0) return;
+  if(skillCooldown <= 0) artillery();
+  const equippedKeys = [...new Set(s.heroSlots.filter(k => k !== null))];
+  equippedKeys.forEach(key => {
+    const h = s.heroes[key];
+    if(h && h.owned && h.cd <= 0) triggerHeroSkill(key);
+  });
+}
+
+function resetAllSkillCooldowns(){
+  skillCooldown = 0;
+  Object.keys(s.heroes).forEach(k => { s.heroes[k].cd = 0; });
+  updateActiveSkillsUI();
+  renderUI();
+}
+
+function setGameMode(modeKey){
+  if(!gameModeConfigs[modeKey]) return;
+  if(s.infiniteStats.kills > 0 || s.infiniteStats.totalDamage > 0){
+    s.lastInfiniteRun = { kills: s.infiniteStats.kills, totalDamage: s.infiniteStats.totalDamage, buffPct: Math.floor(s.infiniteStats.kills / 100) * 10 };
+  }
+  s.infiniteStats = { totalDamage: 0, kills: 0 };
+  s.gameMode = modeKey;
+  
+  Object.keys(gameModeConfigs).forEach(k => {
+    const btn = document.getElementById(`mode-${k}`);
+    if(btn) btn.classList.toggle("active", k === modeKey);
+  });
+
+  const infPanel = document.getElementById("infiniteStatsContainer");
+  const skipContainer = document.getElementById("skipContainer");
+  if(modeKey === "infinite"){
+    infPanel.style.display = "flex"; skipContainer.style.display = "none";
+  } else {
+    infPanel.style.display = "none"; skipContainer.style.display = "block";
+  }
+  recalculateMaxHp();
+  resetAllSkillCooldowns();
+  spawnWave();
+}
+
+function setSkipMode(lvl, autoRestart = true){
+  s.skipLevel = lvl;
+  for(let i = 0; i <= 5; i++){
+    const btn = document.getElementById(`skip-${i}`);
+    if(btn) btn.classList.toggle("active", i === lvl);
+  }
+  resetAllSkillCooldowns();
+  if(autoRestart) spawnWave();
+}
+
+function recalculateMaxHp(){
+  let baseHp = 100 + (s.playerLevel - 1) * 15 + s.upgrades.castle * 15;
+  if(s.gameMode === "goldrush") baseHp = Math.floor(baseHp * 0.70);
+  baseHp = Math.floor(baseHp * (1 + ((s.xpUpgrades.maxHpBonus || 0) * 0.12)));
+  s.castleMaxHp = baseHp;
+  s.castleHp = Math.min(s.castleHp, s.castleMaxHp);
+}
+
+function getSkillMaxCd(){ return BASE_SKILL_CD * (1 - (Math.min(100, s.upgrades.cd) * 0.5 / 100)); }
+function getHeroMaxSkillCd(heroKey){ return heroDefs[heroKey].cd * (1 - (Math.min(100, s.upgrades.heroCd || 0) * 0.5 / 100)); }
+
+function getHeroMultiplier(level){
+  if(level <= 0) return 1;
+  return 1 + (level >= 100 ? Math.floor(Math.min(level, 1000) / 100) * 5 / 100 : 0);
+}
+
+function getHeroDps(key){
+  const h = s.heroes[key];
+  if(!h || !h.owned || h.level <= 0) return 0;
+  return Math.floor(heroDefs[key].base * h.level * getHeroMultiplier(h.level) * (1 + ((s.xpUpgrades.allDamage || 0) * 0.08)));
+}
+
+function upgradeSingleCost(key, level){ return Math.floor(upgradeDefs[key].base * Math.pow(upgradeDefs[key].mult, level)); }
+
+function getUpgradeBulkDetails(key, levelsToBuy){
+  const d = upgradeDefs[key];
+  const curLv = s.upgrades[key];
+  const count = Math.min(levelsToBuy, d.max - curLv);
+  if(count <= 0) return { cost: 0, count: 0 };
+  let totalCost = d.mult === 1 ? upgradeSingleCost(key, curLv) * count : Math.floor(d.base * (Math.pow(d.mult, curLv + count) - Math.pow(d.mult, curLv)) / (d.mult - 1));
+  return { cost: totalCost, count };
+}
+
+function getHeroBulkDetails(key, levelsToBuy){
+  const h = heroDefs[key];
+  const curLv = s.heroes[key].level;
+  if (h.base === 0 && curLv >= 1) return { cost: Infinity, count: 0 };
+  let totalCost = 0, boughtCount = 0, startLevel = curLv;
+  if(curLv === 0){ totalCost += h.cost; boughtCount++; startLevel = 1; }
+  if (h.base === 0) return { cost: totalCost, count: boughtCount };
+
+  const n = levelsToBuy - boughtCount;
+  if(n > 0){
+    const geomSum = h.mult === 1 ? h.cost * 0.4 * n : h.cost * 0.4 * (Math.pow(h.mult, (startLevel - 1) + n) - Math.pow(h.mult, startLevel - 1)) / (h.mult - 1);
+    totalCost += Math.floor(geomSum + (80 * n));
+    boughtCount += n;
+  }
+  return { cost: totalCost, count: boughtCount };
+}
+
+function incomePerSec(){ return (1.5 + s.upgrades.town*2 + (s.playerLevel-1)*.15) * (gameModeConfigs[s.gameMode]?.goldMult || 1) * (1 + ((s.xpUpgrades.goldGain || 0) * 0.10)); }
+function towerDamage(){ return Math.floor((4 + s.upgrades.tower*3 + Math.max(0,s.playerLevel-1)) * (1 + ((s.xpUpgrades.allDamage || 0) * 0.08))); }
+function heroDps(){ return s.heroSlots.reduce((acc, key) => acc + (key ? getHeroDps(key) : 0), 0); }
+function totalDps(){ return towerDamage() + heroDps(); }
+
+function baseEnemyHp(){ return Math.floor(35 * Math.pow(1.18, s.wave - 1) * (gameModeConfigs[s.gameMode]?.enemyHpMult || 1)); }
+function baseEnemyDamage(){ return Math.max(2, Math.floor(3.5 * Math.pow(1.12, s.wave - 1) * (gameModeConfigs[s.gameMode]?.enemyDmgMult || 1))); }
+
+function getEnemyIcon(wave, isBoss, index = 0){
+  if(isBoss) return wave % 20 === 0 ? "🐉" : "👑";
+  const icons = [["👺", "👾", "🧌"], ["💀", "🧟", "👻"], ["👹", "🗿", "👿"], ["🧙‍♂️", "🧛", "🐺"]];
+  const cat = wave >= 15 ? 3 : wave >= 10 ? 2 : wave >= 5 ? 1 : 0;
+  return icons[cat][index % icons[cat].length];
+}
+
+function spawnWave(){
+  s.castleHp = s.castleMaxHp;
+  enemyQueue = [];
+  
+  if(s.gameMode === "infinite"){
+    const buffMult = Math.pow(1.10, Math.floor(s.infiniteStats.kills / 100));
+    for(let i = 0; i < 5; i++){
+      let baseHp = Math.floor(40 * buffMult);
+      enemyQueue.push({ id: Math.random().toString(36).substring(2, 9), hp: baseHp, maxHp: baseHp, damage: Math.floor(4 * buffMult), x: 95 + (i * 6), attackRangeX: 52 + (i * 5.5), isBoss: false, icon: getEnemyIcon(1, false, i) });
+    }
+  } else {
+    const cfg = skipConfigs[s.skipLevel] || skipConfigs[0];
+    const isBossNatural = isBossWave(s.wave);
+    let totalNormal = (isBossNatural ? 1 : (1 + Math.floor(s.wave / 100))) + cfg.addEnemies;
+    let totalBosses = (isBossNatural ? 1 : 0) + cfg.bosses;
+    let idx = 0;
+
+    for(let i = 0; i < totalNormal; i++){
+      let hp = Math.floor(baseEnemyHp() * (1 + cfg.statBuff));
+      enemyQueue.push({ id: Math.random().toString(36).substring(2, 9), hp, maxHp: hp, damage: Math.floor(baseEnemyDamage() * (1 + cfg.statBuff)), x: 95 + (idx * 6), attackRangeX: 52 + (idx * 5.5), isBoss: false, icon: getEnemyIcon(s.wave, false, i) });
+      idx++;
+    }
+    for(let i = 0; i < totalBosses; i++){
+      let hp = Math.floor(baseEnemyHp() * 2.2 * (1 + cfg.statBuff));
+      enemyQueue.push({ id: Math.random().toString(36).substring(2, 9), hp, maxHp: hp, damage: Math.floor(baseEnemyDamage() * 2.0 * (1 + cfg.statBuff)), x: 95 + (idx * 6), attackRangeX: 52 + (idx * 5.5), isBoss: true, icon: getEnemyIcon(s.wave, true, i) });
+      idx++;
+    }
+  }
+  renderEnemiesDOM();
+}
+
+function getFrontEnemy(){ return enemyQueue.length === 0 ? null : enemyQueue.reduce((prev, curr) => (curr.x < prev.x ? curr : prev), enemyQueue[0]); }
+
+function damageEnemy(amount, source="ataque"){
+  const target = getFrontEnemy();
+  if(!target) return;
+  const finalDmg = debuffEnemiesTimer > 0 ? amount * 2 : amount;
+  target.hp -= finalDmg;
+  if(s.gameMode === "infinite") s.infiniteStats.totalDamage += finalDmg;
+  floatText(`-${fmt(finalDmg)}`, target.x, source === "crítico" ? "#f59e0b" : "#f87171");
+  if(target.hp <= 0) killEnemy(target);
+}
+
+function damageAllEnemies(amount){
+  const finalDmg = debuffEnemiesTimer > 0 ? amount * 2 : amount;
+  [...enemyQueue].forEach(e => {
+    e.hp -= finalDmg;
+    if(s.gameMode === "infinite") s.infiniteStats.totalDamage += finalDmg;
+    floatText(`-${fmt(finalDmg)}`, e.x, "#c084fc");
+    if(e.hp <= 0) killEnemy(e);
+  });
+}
+
+function killEnemy(enemyObj){
+  const boss = enemyObj.isBoss;
+  const infGoldBuff = s.gameMode === "infinite" ? Math.pow(1.10, Math.floor(s.infiniteStats.kills / 100)) : 1;
+  const reward = Math.floor((boss ? (25 + s.wave*6)*4 : (25 + s.wave*6)) * (gameModeConfigs[s.gameMode]?.goldMult || 1) * (1 + ((s.xpUpgrades.goldGain || 0) * 0.10)) * infGoldBuff);
+
+  s.gold += reward;
+  s.totalKills++;
+  if(s.gameMode === "infinite") s.infiniteStats.kills++;
+  if(boss) s.bossesKilled++;
+
+  s.xp = Math.min(MAX_XP_CAP, s.xp + Math.floor((18 + Math.floor(s.wave/3)) * (boss ? 3 : 1) * (1 + ((s.xpUpgrades.xpGain || 0) * 0.15))));
+
+  enemyQueue = enemyQueue.filter(e => e.id !== enemyObj.id);
+  const el = document.getElementById(`enemy-${enemyObj.id}`);
+  if(el) el.remove();
+
+  if(s.gameMode === "infinite"){
+    const buffMult = Math.pow(1.10, Math.floor(s.infiniteStats.kills / 100));
+    let newEnemy = { id: Math.random().toString(36).substring(2, 9), hp: Math.floor(40 * buffMult), maxHp: Math.floor(40 * buffMult), damage: Math.floor(4 * buffMult), x: 98, attackRangeX: 52 + (enemyQueue.length * 5.5), isBoss: false, icon: getEnemyIcon(1, false, enemyQueue.length) };
+    enemyQueue.push(newEnemy);
+    const container = document.getElementById("enemiesContainer");
+    const div = document.createElement("div");
+    div.id = `enemy-${newEnemy.id}`; div.className = "enemy"; div.textContent = newEnemy.icon;
+    container.appendChild(div);
+  } else if(enemyQueue.length === 0){
+    resetAllSkillCooldowns();
+    s.wave += (s.skipLevel + 1);
+    setTimeout(() => { spawnWave(); }, 350);
+  }
+}
+
+function triggerHeroSkill(heroKey){
+  const h = s.heroes[heroKey];
+  if(!h || !h.owned || h.cd > 0) return;
+  heroDefs[heroKey].skillAction(h.level);
+  h.cd = getHeroMaxSkillCd(heroKey);
+  updateActiveSkillsUI();
+}
+
+function floatText(txt, posX = 50, color="#fff"){
+  const scene = document.getElementById("scene");
+  const f = document.createElement("div");
+  f.className = "float"; f.textContent = txt; f.style.color = color;
+  f.style.left = posX+"%"; f.style.top = (35+Math.random()*15)+"%";
+  scene.appendChild(f); setTimeout(()=>f.remove(),850);
+}
+
+function renderEnemiesDOM(){
+  const container = document.getElementById("enemiesContainer");
+  container.innerHTML = "";
+  enemyQueue.forEach(e => {
+    const div = document.createElement("div");
+    div.id = `enemy-${e.id}`;
+    div.className = "enemy" + (e.isBoss ? " boss" : "");
+    div.textContent = e.icon;
+    container.appendChild(div);
+  });
+}
+
+function updateEnemiesVisual(){
+  const target = getFrontEnemy();
+  enemyQueue.forEach((e) => {
+    const el = document.getElementById(`enemy-${e.id}`);
+    if(!el) return;
+    if(e.x > 95){ el.style.opacity = "0"; return; }
+    el.style.opacity = "1";
+    el.style.left = e.x + "%";
+    if(e.x <= e.attackRangeX) el.classList.add("attacking");
+    else el.classList.remove("attacking");
+  });
+
+  if(target){
+    const debuffStr = debuffEnemiesTimer > 0 ? " 🔱 [MALDICIÓN ACTIVADA]" : "";
+    document.getElementById("enemyStatus").textContent = `Objetivo: ${fmt(Math.max(0, target.hp))} / ${fmt(target.maxHp)} HP · ${enemyQueue.length} enemigo(s)${debuffStr}`;
+  } else {
+    document.getElementById("enemyStatus").textContent = "Preparando oleada...";
+  }
+}
+
+function buildActiveSkillButtons(){
+  const root = document.getElementById("activeSkillsContainer");
+  root.innerHTML = "";
+  const equippedKeys = [...new Set(s.heroSlots.filter(k => k !== null))];
+
+  if(equippedKeys.length === 0){
+    root.innerHTML = `<div style="grid-column:1/-1;font-size:11px;color:var(--muted);text-align:center;padding:6px">Equipa héroes en los slots para activar sus habilidades.</div>`;
+    return;
+  }
+
+  equippedKeys.forEach(key => {
+    const def = heroDefs[key];
+    const btn = document.createElement("button");
+    btn.id = `h-skill-btn-${key}`; btn.className = "btn purple"; btn.style.width = "100%"; btn.style.textAlign = "left";
+    btn.onclick = () => triggerHeroSkill(key);
+    btn.innerHTML = `<div class="cd-bar" id="h-skill-bar-${key}"></div><div style="position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center"><span>${def.icon} <b>${def.skillName}</b></span><small id="h-skill-txt-${key}">¡LISTO!</small></div>`;
+    root.appendChild(btn);
+  });
+  updateActiveSkillsUI();
+}
+
+function updateActiveSkillsUI(){
+  const equippedKeys = [...new Set(s.heroSlots.filter(k => k !== null))];
+  equippedKeys.forEach(key => {
+    const h = s.heroes[key];
+    const maxCd = getHeroMaxSkillCd(key);
+    const btn = document.getElementById(`h-skill-btn-${key}`);
+    const bar = document.getElementById(`h-skill-bar-${key}`);
+    const txt = document.getElementById(`h-skill-txt-${key}`);
+    if(btn && bar && txt){
+      const isReady = h.cd <= 0;
+      btn.disabled = !isReady;
+      bar.style.width = ((h.cd / maxCd) * 100) + "%";
+      txt.textContent = isReady ? '¡LISTO!' : h.cd.toFixed(1) + 's';
+    }
+  });
+}
+
+function getXpUpgradeCost(key){ return Math.floor(xpShopDefs[key].baseCost * Math.pow(xpShopDefs[key].mult, s.xpUpgrades[key] || 0)); }
+
+function renderXpShopDOM(){
+  const grid = document.getElementById("xpShopGrid");
+  if(!grid) return;
+  grid.innerHTML = "";
+
+  Object.keys(xpShopDefs).forEach(key => {
+    const def = xpShopDefs[key];
+    const lv = s.xpUpgrades[key] || 0;
+    const item = document.createElement("div");
+    item.className = "xp-shop-item";
+    const btn = document.createElement("button");
+    btn.id = `btn-xp-${key}`; btn.className = "btn purple"; btn.style.padding = "6px"; btn.style.fontSize = "11px";
+    btn.onclick = () => buyXpUpgrade(key);
+
+    item.innerHTML = `<div class="xp-shop-item-info"><div class="xp-shop-item-title" id="title-xp-${key}">${def.name} · Nv.${lv}</div><div class="xp-shop-item-desc">${def.desc}</div><div id="effect-xp-${key}" style="font-size:10px;color:var(--purple);font-weight:700;margin-top:4px">${def.effect(lv)}</div></div>`;
+    item.appendChild(btn);
+    grid.appendChild(item);
+  });
+  updateXpShopUI();
+}
+
+function updateXpShopUI(){
+  Object.keys(xpShopDefs).forEach(key => {
+    const def = xpShopDefs[key];
+    const lv = s.xpUpgrades[key] || 0;
+    const cost = getXpUpgradeCost(key);
+    const btn = document.getElementById(`btn-xp-${key}`);
+    const title = document.getElementById(`title-xp-${key}`);
+    const effect = document.getElementById(`effect-xp-${key}`);
+    if(btn){ btn.disabled = s.xp < cost; btn.textContent = `Comprar: ${fmt(cost)} ✨ XP`; }
+    if(title) title.textContent = `${def.name} · Nv.${lv}`;
+    if(effect) effect.textContent = def.effect(lv);
+  });
+}
+
+function buyXpUpgrade(key){
+  const cost = getXpUpgradeCost(key);
+  if(s.xp < cost) return;
+  s.xp -= cost;
+  s.xpUpgrades[key] = (s.xpUpgrades[key] || 0) + 1;
+  if(key === "maxHpBonus"){ recalculateMaxHp(); s.castleHp = s.castleMaxHp; }
+  updateXpShopUI();
+  renderUI();
+}
+
+function renderUI(){
+  document.getElementById("gold").textContent = fmt(s.gold);
+  document.getElementById("gps").textContent = fmt(incomePerSec());
+  document.getElementById("maxHpVal").textContent = fmt(s.castleMaxHp);
+  document.getElementById("wave").textContent = s.gameMode === "infinite" ? "♾️" : s.wave;
+  document.getElementById("xpText").textContent = `${fmt(s.xp)} / ${fmt(MAX_XP_CAP)} XP`;
+  document.getElementById("xpBar").style.width = Math.max(0, Math.min(100, (s.xp / MAX_XP_CAP) * 100)) + "%";
+  
+  document.getElementById("castleHpBar").style.width = Math.max(0, Math.min(100, s.castleHp/s.castleMaxHp*100)) + "%";
+  document.getElementById("castleHpText").textContent = `${fmt(Math.max(0,s.castleHp))} / ${fmt(s.castleMaxHp)} HP`;
+  document.getElementById("dpsStatus").textContent = `DPS total: ${fmt(totalDps())} · Torre ${fmt(towerDamage())} + Héroes ${fmt(heroDps())}`;
+
+  const speedBadge = document.getElementById("speedBadge");
+  document.getElementById("speedVal").textContent = `x${gameSpeedMultiplier.toFixed(1)}`;
+  if(speedBoostTimer > 0) speedBadge.classList.add("boosted");
+  else speedBadge.classList.remove("boosted");
+  
+  const waveTitle = document.getElementById("waveTitle");
+  if(s.gameMode === "infinite"){ waveTitle.textContent = `♾️ Oleada Infinita`; waveTitle.style.color = "var(--purple)"; }
+  else if(isBossWave(s.wave)){ waveTitle.textContent = `⚠️ Oleada ${s.wave} — ¡JEFE DE ÁREA!`; waveTitle.style.color = "var(--red)"; }
+  else { waveTitle.textContent = `Oleada ${s.wave} — Defiende el castillo`; waveTitle.style.color = "var(--text)"; }
+
+  if(s.gameMode === "infinite"){
+    document.getElementById("infTotalDamage").textContent = fmt(s.infiniteStats.totalDamage);
+    document.getElementById("infKills").textContent = fmt(s.infiniteStats.kills);
+    document.getElementById("infBuffPct").textContent = `+${Math.floor(s.infiniteStats.kills / 100) * 10}%`;
+    document.getElementById("lastRunKills").textContent = fmt(s.lastInfiniteRun.kills);
+    document.getElementById("lastRunDmg").textContent = fmt(s.lastInfiniteRun.totalDamage);
+    document.getElementById("lastRunBuff").textContent = `+${s.lastInfiniteRun.buffPct}%`;
+  }
+
+  const maxCd = getSkillMaxCd();
+  const skillBtn = document.getElementById("skillBtn");
+  const skillText = document.getElementById("skillBtnText");
+  const skillBar = document.getElementById("skillCdBar");
+  if(skillCooldown > 0){
+    skillBtn.disabled = true; skillBar.style.width = ((skillCooldown / maxCd) * 100) + "%";
+    skillText.textContent = `🔥 Cooldown (${skillCooldown.toFixed(1)}s)`;
+  } else {
+    skillBtn.disabled = false; skillBar.style.width = "0%";
+    skillText.textContent = `🔥 Artillería (${maxCd.toFixed(1)}s)`;
+  }
+
+  const autoBtn = document.getElementById("autoWaveBtn");
+  if(s.autoWave){ autoBtn.classList.add("active-auto"); autoBtn.innerHTML = `🤖 Auto Skills: ON`; }
+  else { autoBtn.classList.remove("active-auto"); autoBtn.innerHTML = `🤖 Auto Skills: OFF`; }
+
+  updateUpgradeButtons();
+  updateHeroButtons();
+  updateActiveSkillsUI();
+  updateXpShopUI();
+}
+
+function updateUpgradeButtons(){
+  for(const key of Object.keys(upgradeDefs)){
+    const d = upgradeDefs[key];
+    const details = getUpgradeBulkDetails(key, buyMultiplier);
+    const btn = document.getElementById(`btn-upg-${key}`);
+    if(btn){
+      if(s.upgrades[key] >= d.max){ btn.disabled = true; btn.className = "btn"; btn.textContent = "MAX"; }
+      else { btn.disabled = s.gold < details.cost || details.count === 0; btn.className = `btn ${s.gold >= details.cost && details.count > 0 ? 'gold' : ''}`; btn.textContent = `${fmt(details.cost)} 🪙`; }
+    }
+  }
+}
+
+function updateHeroButtons(){
+  for(const key of Object.keys(heroDefs)){
+    const details = getHeroBulkDetails(key, buyMultiplier);
+    const btn = document.getElementById(`btn-hero-${key}`);
+    if(btn){
+      const isMax = heroDefs[key].base === 0 && s.heroes[key].owned;
+      if(isMax){ btn.disabled = true; btn.textContent = "MAX"; }
+      else { btn.disabled = s.gold < details.cost || details.count === 0; btn.textContent = `${fmt(details.cost)} 🪙`; }
+    }
+  }
+}
+
+function renderUpgradesDOM(){
+  const root = document.getElementById("upgrades"); root.innerHTML = "";
+  for(const key of Object.keys(upgradeDefs)){
+    const d = upgradeDefs[key], lv = s.upgrades[key];
+    const details = getUpgradeBulkDetails(key, buyMultiplier);
+    const isMax = lv >= d.max;
+    const el = document.createElement("div"); el.className = "upg";
+    el.innerHTML = `<div><div class="upg-title">${d.name} · Nv.${lv}</div><div class="upg-meta">${d.effect(lv)}</div></div><button id="btn-upg-${key}" class="btn ${s.gold>=details.cost && !isMax ?'gold':''}" ${s.gold<details.cost || isMax ?'disabled':''}>${isMax ? 'MAX' : fmt(details.cost) + ' 🪙'}</button>`;
+    el.querySelector("button").onclick = () => {
+      const currentDetails = getUpgradeBulkDetails(key, buyMultiplier);
+      if(s.gold < currentDetails.cost || isMax || currentDetails.count === 0) return;
+      s.gold -= currentDetails.cost;
+      s.upgrades[key] += currentDetails.count;
+      if(key === "castle"){ recalculateMaxHp(); s.castleHp += (15 * currentDetails.count); }
+      renderUpgradesDOM(); renderUI();
+    };
+    root.appendChild(el);
+  }
+}
+
+function renderHeroSlots(){
+  const root = document.getElementById("heroSlots"); root.innerHTML = "";
+  s.heroSlots.forEach((key, i) => {
+    const slot = document.createElement("div"); slot.className = "slot" + (key ? " filled" : "");
+    if(key && heroDefs[key]){
+      const d = heroDefs[key], h = s.heroes[key];
+      slot.innerHTML = `<button class="remove" title="Desequipar">✕</button><div class="slot-icon">${d.icon}</div><div class="slot-name">${d.name.split(',')[0]}</div><div class="slot-lv">${d.base === 0 ? "MAX" : `Nv.${h.level}`}</div>`;
+      slot.querySelector(".remove").onclick = (ev) => {
+        ev.stopPropagation(); s.heroSlots[i] = null;
+        renderHeroSlots(); renderHeroesDOM(); buildActiveSkillButtons(); renderUI();
+      };
+    } else {
+      slot.innerHTML = `<div class="slot-icon" style="opacity:0.4">＋</div><div class="slot-name" style="opacity:0.5">Slot ${i+1}</div>`;
+      slot.onclick = () => openEquipMenu(i);
+    }
+    root.appendChild(slot);
+  });
+}
+
+function openEquipMenu(slotIndex){
+  const available = Object.keys(heroDefs).filter(k => s.heroes[k].owned && !s.heroSlots.includes(k));
+  if(!available.length){ alert("No tienes más héroes reclutados disponibles."); return; }
+  const choices = available.map((k,i) => `${i+1}. ${heroDefs[k].name}`).join("\n");
+  const answer = prompt(`Elige héroe para Slot ${slotIndex+1}:\n\n${choices}\n\nIngresa número (1-${available.length})`);
+  const idx = Number(answer) - 1;
+  if(Number.isInteger(idx) && available[idx]){
+    s.heroSlots[slotIndex] = available[idx];
+    renderHeroSlots(); renderHeroesDOM(); buildActiveSkillButtons(); renderUI();
+  }
+}
+
+function setHeroSlot(heroKey, targetSlotStr){
+  const currentSlotIndex = s.heroSlots.indexOf(heroKey);
+  if(currentSlotIndex !== -1) s.heroSlots[currentSlotIndex] = null;
+  if(targetSlotStr !== "none") s.heroSlots[parseInt(targetSlotStr, 10)] = heroKey;
+  renderHeroSlots(); renderHeroesDOM(); buildActiveSkillButtons(); renderUI();
+}
+
+function renderHeroesDOM(){
+  const root = document.getElementById("heroes"); root.innerHTML = "";
+  for(const key of Object.keys(heroDefs)){
+    const d = heroDefs[key], h = s.heroes[key];
+    if(!h) continue;
+    const details = getHeroBulkDetails(key, buyMultiplier);
+    const isSupport = d.base === 0;
+    const isMax = isSupport && h.owned;
+    const disabled = isMax || s.gold < details.cost || details.count === 0;
+    const el = document.createElement("div"); el.className = "hero";
+    
+    let optionsHtml = `<option value="none">En reserva</option>`;
+    for(let i = 0; i < TOTAL_SLOTS; i++){
+      const occupant = s.heroSlots[i];
+      const occText = occupant && occupant !== key ? ` (Ocupado)` : "";
+      const selected = s.heroSlots[i] === key ? "selected" : "";
+      optionsHtml += `<option value="${i}" ${selected}>Slot ${i+1}${occText}</option>`;
+    }
+
+    el.innerHTML = `<div class="hero-avatar">${d.icon}</div><div><div class="hero-name">${d.name} ${h.owned ? (isSupport ? '· MAX' : '· Nv.'+h.level) : ''}</div><div class="hero-meta">${d.desc} · ${isSupport ? "Soporte (0 DPS)" : (h.owned ? fmt(getHeroDps(key)) + " DPS" : "Sin reclutar")}</div><div class="hero-skill-info">⚡ ${d.skillName} (${getHeroMaxSkillCd(key).toFixed(1)}s)</div>${h.owned ? `<select class="hero-select" onchange="setHeroSlot('${key}', this.value)">${optionsHtml}</select>` : ""}</div><div class="hero-actions"><button id="btn-hero-${key}" class="btn" ${disabled?'disabled':''}>${isMax ? "MAX" : `${fmt(details.cost)} 🪙`}</button></div>`;
+    
+    el.querySelector("button").onclick = () => {
+      if(isMax) return;
+      const currentDetails = getHeroBulkDetails(key, buyMultiplier);
+      if(s.gold < currentDetails.cost || currentDetails.count === 0) return;
+      s.gold -= currentDetails.cost;
+      h.owned = true; h.level += currentDetails.count;
+      renderHeroesDOM(); renderHeroSlots(); buildActiveSkillButtons(); renderUI();
+    };
+    root.appendChild(el);
+  }
+}
+
+function autoTowerAttack(){
+  if(enemyQueue.length === 0) return;
+  const base = towerDamage(); if(base <= 0) return;
+  const crit = Math.random() < 0.10;
+  damageEnemy(crit ? base * 2 : base, crit ? "crítico" : "torre");
+}
+
+function artillery(){
+  if(skillCooldown > 0 || enemyQueue.length === 0) return;
+  skillCooldown = getSkillMaxCd();
+  const dmg = Math.floor((35 + s.playerLevel * 8 + s.upgrades.tower * 4) * (1 + (s.upgrades.artDmg * 0.10)) * (1 + ((s.xpUpgrades.allDamage || 0) * 0.08)));
+  damageEnemy(dmg);
+}
+
+function tick(){
+  speedBoostTimer > 0 ? (speedBoostTimer -= 0.1, gameSpeedMultiplier = 2.5) : (gameSpeedMultiplier = 1.0);
+  if(debuffEnemiesTimer > 0) debuffEnemiesTimer -= 0.1;
+
+  const dt = 0.1 * gameSpeedMultiplier;
+  s.gold += incomePerSec() * dt;
+  
+  const hDps = heroDps();
+  if(enemyQueue.length > 0 && hDps > 0) damageEnemy(hDps * dt, "auto");
+
+  towerAttackTimer += dt;
+  if(towerAttackTimer >= 0.5){ towerAttackTimer = 0; autoTowerAttack(); }
+
+  Object.keys(s.heroes).forEach(k => {
+    if(s.heroes[k] && s.heroes[k].cd > 0) s.heroes[k].cd = Math.max(0, s.heroes[k].cd - dt);
+  });
+
+  processAutoSkills();
+
+  let totalEnemyDmgThisTick = 0;
+  enemyQueue.forEach((e, idx) => {
+    e.attackRangeX = 52 + (idx * 5.5);
+    if(e.x > e.attackRangeX) e.x -= (0.25 * gameSpeedMultiplier);
+    else totalEnemyDmgThisTick += ((debuffEnemiesTimer > 0 ? e.damage * 0.5 : e.damage) * dt);
+  });
+
+  if(totalEnemyDmgThisTick > 0){
+    s.castleHp = Math.max(0, s.castleHp - totalEnemyDmgThisTick);
+    if(s.castleHp <= 0){
+      if(s.gameMode === "infinite"){
+        s.lastInfiniteRun = { kills: s.infiniteStats.kills, totalDamage: s.infiniteStats.totalDamage, buffPct: Math.floor(s.infiniteStats.kills / 100) * 10 };
+        s.infiniteStats = { totalDamage: 0, kills: 0 };
+        setGameMode("normal");
+        floatText("💀 ¡Castillo destruido! Volviendo al modo Normal...", 50, "#f87171");
+        return;
+      }
+      resetAllSkillCooldowns(); spawnWave(); return;
+    }
+  }
+
+  if(skillCooldown > 0) skillCooldown = Math.max(0, skillCooldown - dt);
+  renderUI(); updateEnemiesVisual();
+}
+
+function applyLoadedState(saved) {
+  s = {
+    ...structuredClone(defaultState), ...saved,
+    xpUpgrades: { ...defaultState.xpUpgrades, ...saved.xpUpgrades },
+    infiniteStats: { ...defaultState.infiniteStats, ...saved.infiniteStats },
+    lastInfiniteRun: { ...defaultState.lastInfiniteRun, ...saved.lastInfiniteRun },
+    upgrades: { ...defaultState.upgrades, ...saved.upgrades },
+    heroes: { ...defaultState.heroes, ...saved.heroes },
+    heroSlots: Array.isArray(saved.heroSlots) ? saved.heroSlots.slice(0, TOTAL_SLOTS) : defaultState.heroSlots
+  };
+  while(s.heroSlots.length < TOTAL_SLOTS) s.heroSlots.push(null);
+  s.heroSlots = s.heroSlots.map(k => (k && s.heroes[k]?.owned) ? k : null);
+
+  const seconds = Math.min(8 * 3600, Math.max(0, (Date.now() - s.lastSave) / 1000));
+  s.gold += Math.floor(seconds * incomePerSec());
+
+  setGameMode(s.gameMode || "normal");
+  setSkipMode(s.skipLevel || 0, false);
+  renderUpgradesDOM(); renderHeroSlots(); renderHeroesDOM(); renderXpShopDOM(); buildActiveSkillButtons(); spawnWave(); renderUI();
+}
+
+function initGame() {
+  loadLocal();
+  renderUpgradesDOM(); renderHeroSlots(); renderHeroesDOM(); renderXpShopDOM(); buildActiveSkillButtons(); spawnWave(); renderUI();
+}
+
+document.getElementById("skillBtn").onclick = artillery;
+document.getElementById("saveBtn").onclick = saveLocal;
+document.getElementById("resetBtn").onclick = () => {
+  if(confirm("¿Deseas reiniciar todo tu progreso?")){
+    s = structuredClone(defaultState);
+    buyMultiplier = 1; setBuyMultiplier(1); setGameMode("normal"); setSkipMode(0, false);
+    renderUpgradesDOM(); renderHeroSlots(); renderHeroesDOM(); renderXpShopDOM(); buildActiveSkillButtons(); spawnWave(); renderUI();
+    saveLocal();
+  }
+};
+
+window.addEventListener("beforeunload", saveLocal);
+
+initGame();
+gameLoopInterval = setInterval(tick, 100);
+setInterval(saveLocal, 15000); // Autoguardado local cada 15 seg
+</script>
+</body>
+</html>
